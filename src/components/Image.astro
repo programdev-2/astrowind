@@ -1,0 +1,32 @@
+---
+import { getImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
+import { findImage } from '~/utils/images.ts'
+
+type Props = LocalImageProps | RemoteImageProps;
+
+const props = Astro.props;
+
+if (props.alt === undefined || props.alt === null) {
+	throw new Error();
+}
+
+if (typeof props.width === 'string') {
+	props.width = parseInt(props.width);
+}
+
+if (typeof props.height === 'string') {
+	props.height = parseInt(props.height);
+}
+
+props.src = await findImage(props.src);
+ 
+const image = await getImage(props);
+---
+
+{
+  !image ? (
+    <Fragment />
+  ) : (
+    <img src={image.src} {...image.attributes} />
+  )
+}

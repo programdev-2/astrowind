@@ -11,7 +11,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^3.0.0-beta.0"
+    "astro": "^3.0.0-beta.0",
+    "unpic": "^3.10.0"
   },
   "devDependencies": {
     "@astrojs/sitemap": "^3.0.0-beta.0"
