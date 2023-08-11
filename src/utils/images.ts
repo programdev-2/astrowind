@@ -19,7 +19,7 @@ export const fetchLocalImages = async () => {
 };
 
 /** */
-export const findImage = async (imagePath: string | ImageMetadata): Promise<string | ImageMetadata> => {
+export const findImage = async (imagePath: string | ImageMetadata): Promise<string | ImageMetadata | null> => {
   // Not string
   if (typeof imagePath !== 'string') {
     return imagePath;
@@ -40,5 +40,5 @@ export const findImage = async (imagePath: string | ImageMetadata): Promise<stri
 
   return images && typeof images[key] === 'function'
     ? ((await images[key]()) as { default: ImageMetadata })['default']
-    : key;
+    : null;
 };

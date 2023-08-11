@@ -1,8 +1,10 @@
 ---
 import { getImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
+import { transformProps, type UnpicImageProps } from "@unpic/core";
+import type { HTMLAttributes } from 'astro/types'
 import { findImage } from '~/utils/images.ts'
 
-type Props = LocalImageProps | RemoteImageProps;
+type Props = LocalImageProps | UnpicImageProps<HTMLAttributes<'img'>>;
 
 const props = Astro.props;
 
@@ -18,9 +20,26 @@ if (typeof props.height === 'string') {
 	props.height = parseInt(props.height);
 }
 
-props.src = await findImage(props.src);
- 
-const image = await getImage(props);
+const _image = await findImage(props.src);
+
+console.log("_image: ", _image);
+
+let image = { src: props.src, attributes: { ...props, src: undefined, } };
+
+if (_image !== null && typeof _image === "object") {
+  props.src = _image;
+  image = await getImage(props);
+} else if (typeof _image === "string" && (_image.startsWith("http://") || _image.startsWith("https://"))) {
+  const { src, ...attributes} = transformProps(props);
+
+  image = {
+    src: src,
+    attributes: attributes
+  }
+}
+
+console.log("~~~~~~~~~~ <Image>")
+console.log(image);
 ---
 
 {

@@ -5,12 +5,17 @@ import type { LocalImageService, ExternalImageService, ImageTransform, ImageOutp
 import sharpService from "astro/assets/services/sharp";
 import squooshService from "astro/assets/services/squoosh";
 
+import { findImage } from '~/utils/images.ts'
+
 const getInternalService = (key: string) => {
-  return key === "sharp" ? sharpService : (squooshService as LocalImageService);
+  return (key === "sharp" ? sharpService : squooshService) as LocalImageService;
 };
 
 const service: LocalImageService & ExternalImageService = {
   validateOptions(options: ImageTransform, serviceConfig) {
+    console.log("~~~~~~~~~~ validateOptions()");
+    console.log(options);
+
     const service = getInternalService(serviceConfig?.service);
     return typeof service?.validateOptions === "function" ? service.validateOptions(options, serviceConfig) : options;
   },
@@ -25,17 +30,32 @@ const service: LocalImageService & ExternalImageService = {
     return service.transform(inputBuffer, transformOptions, serviceConfig);
   },
 
-  getURL(options, serviceConfig) {
-    const url = typeof options?.src === "string" ? options.src : options.src.src;
+  async getURL(options, serviceConfig) {
+    console.log("~~~~~~~~~~ getURL()");
+    console.log(options);
 
-    if (url && (url.startsWith("http://") || url.startsWith("https://"))) {
+    const url = await findImage(options.src);
+
+    console.log("Genered URL: ", url);
+
+    if (url && typeof url === "string" && (url.startsWith("http://") || url.startsWith("https://"))) {
       const generatedURL = transformUrl({
         url: url,
         width: options?.width,
         height: options?.height,
+        format: options?.format,
       });
 
-      return String(generatedURL);
+      console.log("REMOTE WORKER!!!");
+      console.log("generated Url: ", String(generatedURL))
+
+      console.log("~~~~~~~~~~~~~~~");
+
+      return generatedURL ? String(generatedURL) : url;
+    }
+
+    if (url) {
+      options.src = url;
     }
 
     const service = getInternalService(serviceConfig?.service);
@@ -43,6 +63,9 @@ const service: LocalImageService & ExternalImageService = {
   },
 
   getHTMLAttributes(options, serviceConfig) {
+    console.log("~~~~~~~~~~ getHTMLAttributes()");
+    console.log(options);
+
     const service = getInternalService(serviceConfig?.service);
     return typeof service?.getHTMLAttributes === "function" ? service.getHTMLAttributes(options, serviceConfig) : {};
   },

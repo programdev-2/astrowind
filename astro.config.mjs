@@ -14,13 +14,13 @@ export default defineConfig({
     assets: true,
   },
 
-  image: {
-    service: {
-      entrypoint: "./src/services/images.ts",
-      config: {
-        // ... service-specific config. Optional.
-        service: "squoosh"
-      }
-    }
-  },
+  // image: {
+  //   service: {
+  //     entrypoint: "./src/services/images.ts",
+  //     config: {
+  //       // ... service-specific config. Optional.
+  //       service: "squoosh"
+  //     }
+  //   }
+  // },
 });
